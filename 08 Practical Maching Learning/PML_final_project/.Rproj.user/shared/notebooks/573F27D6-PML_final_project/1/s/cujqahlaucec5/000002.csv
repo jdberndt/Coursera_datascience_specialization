@@ -1,0 +1,4 @@
+"0","set.seed(666) #spawn the devil's seed"
+"0","inValid <- createDataPartition(training$classe, p = 0.7, list = FALSE)"
+"0","validation <- training[inValid,]"
+"0","training <- training[-inValid,]"

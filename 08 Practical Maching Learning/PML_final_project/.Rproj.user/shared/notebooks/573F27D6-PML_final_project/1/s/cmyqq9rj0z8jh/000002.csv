@@ -1,0 +1,4 @@
+"0","nacount <- sapply(training, function(x){sum(is.na(x))}) #counts NAs in each column"
+"0","omitcols <- names(nacount[nacount > nrow(training)*.5]) #identifies columns with more than half NAs"
+"0","training <- training%>%select(-omitcols) #subsets data to omit columns with mostly NAs"
+"0","training <- training%>%select(-c(1:7)) #subsets data to omit columns with non-predictive variables, e.g. timestamp"

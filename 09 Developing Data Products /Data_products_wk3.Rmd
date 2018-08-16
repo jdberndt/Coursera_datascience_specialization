@@ -1,0 +1,25 @@
+---
+title: "Data products week 3"
+author: Jason B.
+date: Aug 9th, 2018
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plotly)
+library(dplyr)
+library(datasets)
+data("Indometh")
+Indometh <- Indometh %>%
+        mutate(log_conc = log10(conc), seq = (rep(x = seq(1:11)^2, 6)))
+
+```
+
+
+## Response to Indomethicin
+
+```{r IndoMeth}
+plot_ly(Indometh, x = ~time, y = ~log_conc, color = ~Subject, type = "scatter", mode = "lines+markers")
+```
+

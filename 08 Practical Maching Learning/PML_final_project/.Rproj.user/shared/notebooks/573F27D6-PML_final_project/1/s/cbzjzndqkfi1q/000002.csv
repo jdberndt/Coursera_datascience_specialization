@@ -1,0 +1,30 @@
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(caret)"
+"2","Loading required package: lattice
+"
+"2","Loading required package: ggplot2
+"
+"0","library(corrplot)"
+"2","corrplot 0.84 loaded
+"
+"0","library(parallel)"
+"0","library(doParallel)"
+"2","Loading required package: foreach
+"
+"2","Loading required package: iterators
+"
+"0","library(e1071)"

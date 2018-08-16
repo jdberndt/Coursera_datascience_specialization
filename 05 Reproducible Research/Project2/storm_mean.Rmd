@@ -1,0 +1,143 @@
+#**Analysis of the Financial and Health Impact of Different Storm Types**  
+##Synopsis: 
+Weather events across the United States have a major impact on human health and the economy. In order to better understand the types of storms that have the greatest impact, I have analyzed a subset of data from the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. These data show that events involving flooding cause the largest financial burden; whereas, tornados result in the largest impact to public health. I have further divided the data to assess crop versus general property damage and fatalities versus injuries. These data may be useful for informing decisions related to governmental policy and resource allocation.  
+  
+
+##Data processing
+The first step was to download the NOAA storm data file from the [course-related website][1]. I then loaded it into R in a data frame called "SD". I subsetted the data for variables related to storm types, costs, and impact on human health. The documentation is available at [National Weather Service Storm Data][2] and [National Climatic Data Center Storm Events FAQ][3]. 
+
+[1]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+[2]: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf
+[3]: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf
+
+Loading libraries.  
+```{r, message=F, warning=F}
+library(tidyverse)
+library(reshape2)
+```
+  
+Getting and subsetting data.  
+```{r cache = TRUE}
+if(!file.exists("storm_data.csv.bz2")) {
+        download.file(
+        "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
+        destfile = "storm_data.csv.bz2",
+        method = "curl"
+        )
+}
+SD <- read.csv("storm_data.csv.bz2")
+SD <- SD[, c(8, 23, 24, 25, 26, 27, 28)]
+```
+  
+The storm type variable (EVTYPE) contained 985 different storm types. Many of these were due to typos and different ways of referring to the same storm type. The following code applies a threshold which requires EVTYPE level names to occur at least 100 times. The thought was that this would limit potentially spurious entries due to typos, etc. This action reduces the EVTYPE variable to 69 levels and eliminates 4,714 of 902,297 observations (~0.5%). 
+```{r}
+EVFREQ <- as.data.frame(table(SD$EVTYPE))
+EVFREQ[, 1] <- toupper(EVFREQ[, 1])
+EVFREQ <- EVFREQ %>% filter(Freq > 99) %>% arrange(desc(Freq))
+
+SD <- SD %>% filter(EVTYPE %in% EVFREQ[, 1])
+```
+  
+The next step was to determine the total number of victims and group by storm type.   
+```{r}
+SD <- SD %>%
+        mutate(VICTIMS = FATALITIES + INJURIES) %>%
+        arrange(desc(VICTIMS))
+        
+VICTIMTBL <- SD %>%
+        group_by(EVTYPE) %>%
+        summarise(
+        FATALITIES = mean(FATALITIES),
+        INJURIES = mean(INJURIES),
+        VICTIMS = mean(VICTIMS)
+        ) %>%
+        arrange(desc(VICTIMS))
+```
+  
+The cost data were split into two columns with the exponent in the columns of the form "*DMGEXP". Furthermore, the exponents were referred to using both letters and numbers. The following code determines the numeric exponent and adds columns with dollar amounts. The code assigns observations with no exponents = "0" and those with "-","?", "+" = "NA".  
+```{r, warning = F}
+exchangeexp <- function(dfcol) {
+        dfcol <- gsub("^$", "0", dfcol)
+        dfcol <- gsub("H", "2", dfcol, ignore.case = T)
+        dfcol <- gsub("K", "3", dfcol, ignore.case = T)
+        dfcol <- gsub("M", "6", dfcol, ignore.case = T)
+        dfcol <- gsub("B", "9", dfcol, ignore.case = T)
+        dfcol <- gsub("\\-|\\?|\\+", "NA", dfcol)
+}
+SD$PROPDMGEXP <- as.numeric(exchangeexp(SD$PROPDMGEXP))
+SD$CROPDMGEXP <- as.numeric(exchangeexp(SD$CROPDMGEXP))
+```
+  
+Next, I calculated the total financial cost of each event and grouped by storm type.  
+```{r}
+SD <- SD %>%
+        mutate(PROPDMGCOST = PROPDMG * 10 ** PROPDMGEXP,
+        CROPDMGCOST = CROPDMG * 10 ** CROPDMGEXP) %>%
+        mutate(TOTALCOST = PROPDMGCOST + CROPDMGCOST) %>%
+        arrange(desc(TOTALCOST))
+        
+COSTTBL <- SD %>%
+        group_by(EVTYPE) %>%
+        summarise(
+        PROPDMGCOST = mean(PROPDMGCOST),
+        CROPDMGCOST = mean(CROPDMGCOST),
+        TOTALCOST = mean(TOTALCOST)
+        ) %>%
+        arrange(desc(TOTALCOST))
+```
+  
+
+##Results  
+These ten types of storm events have the most impact on public health across the United States.  
+```{r}
+VICTIMTBLLONG <-
+        melt(
+        VICTIMTBL[1:10, 1:3],
+        id = "EVTYPE",
+        variable.name = "VICTIMS",
+        value.name = "NUMBER"
+        )
+        
+VICTIMTBLLONG <-
+        VICTIMTBLLONG %>% mutate(NUMBERT = NUMBER / 10 ** 3)
+        
+VPLOT <-
+        qplot(
+        data = VICTIMTBLLONG,
+        x = reorder(EVTYPE, NUMBER),
+        y = NUMBERT,
+        fill = VICTIMS
+        ) + geom_col() + coord_flip() + labs(y = "THOUSANDS OF PEOPLE", x =
+        "STORM TYPE") + theme(legend.position = c(0.8, 0.2))
+        
+print(VPLOT)
+```
+  
+  
+These ten types of storm events have the most economic impact across the United States.  
+```{r}
+COSTTBLLONG <-
+        melt(
+        COSTTBL[1:10, 1:3],
+        id = "EVTYPE",
+        variable.name = "DAMAGE",
+        value.name = "COST"
+        )
+        
+COSTTBLLONG <- COSTTBLLONG %>% mutate(COSTB = COST / 10 ** 9)
+        
+CPLOT <-
+        qplot(
+        data = COSTTBLLONG,
+        x = reorder(EVTYPE, COST),
+        y = COSTB,
+        fill = reorder(DAMAGE, COST)
+        )
+        
+CPLOT <-
+        CPLOT + geom_col() + coord_flip() + labs(y = "COST (BILLIONS USD)", x =
+        "STORM TYPE", fill = "DAMAGE") + theme(legend.position = c(0.8, 0.2))
+        
+print(CPLOT)
+```
+

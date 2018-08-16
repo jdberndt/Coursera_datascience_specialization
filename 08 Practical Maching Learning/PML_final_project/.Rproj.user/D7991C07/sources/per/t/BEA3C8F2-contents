@@ -1,0 +1,138 @@
+---
+title: "PML_final_project"
+author: "Jason B."
+date: "8/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Excecutive summary:
+####The goal of this project was to use machine learning to predict human behavior from personal activity data. More specifically, participants were asked to perform weight lifting exercises while wearing various body accelerometers. Participants were evaluated as to how well they performed the exercises (correct form) and this was recorded in the "classe" variable in the training dataset. I have used the recorded accelerometer data to build a 'random forest' model that predicts weight lifting form with >99% accuracy.  
+
+#####Instructions: <https://www.coursera.org/learn/practical-machine-learning/supplement/PvInj/course-project-instructions-read-first>.
+#####Training data: <https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv>
+#####Test data: <https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv>
+#####Source: <http://groupware.les.inf.puc-rio.br/har>
+
+
+###Loading libraries
+```{r message = F, warning = F}
+library(dplyr)
+library(caret)
+library(corrplot)
+library(parallel)
+library(doParallel)
+library(e1071)
+```
+
+###Loading data:
+```{r}
+if(!file.exists("pml-training.csv")){download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", "pml-training.csv", method ="curl")}
+if(!file.exists("pml-testing.csv")){download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", "pml-training.csv", method ="curl")}
+training <- read.csv("pml-training.csv", na.strings = c("","NA", "#DIV/0!"))
+testing <- read.csv("pml-testing.csv", na.strings = c("","NA", "#DIV/0!"))
+```
+
+###Data cleaning and pre-processing:  
+#####The data contained 100 variables with a large percentage of NA values. I removed these variables. I also removed variables with non-predictive information, e.g. timestamp.
+```{r}
+nacount <- sapply(training, function(x){sum(is.na(x))}) #counts NAs in each column
+omitcols <- names(nacount[nacount > nrow(training)*.5]) #identifies columns with more than half NAs
+training <- training%>%select(-omitcols) #subsets data to omit columns with mostly NAs
+training <- training%>%select(-c(1:7)) #subsets data to omit columns with non-predictive variables, e.g. timestamp
+```
+
+#####I checked for variables with near zero variance, but there were none.
+```{r} 
+nearZeroVar(training) #check for variables with little variation
+```
+
+###Creating validation set:
+#####In order to later be able to estimate the out of sample error, I chose to split the training set into training and validation sets.
+```{r}
+set.seed(666) #spawn the devil's seed
+in_train <- createDataPartition(training$classe, p = 0.75, list = FALSE)
+validation <- training[-in_train,]
+training <- training[in_train,]
+```
+
+###Examining correlation among variables:
+#####Dimension reduction can reduce computation time and reduce variance inflation due to correlation among features. To explore whether there were related features, I calculated a correlation matrix and filtered it for highly correlated features. Nineteen of 1326 correlations were greater than 0.8. I plotted the correlations among these features as a heatmap. As you can see, there are small clusters of correlated (e.g. accel_belt_y and roll_belt) or anti-correlated (e.g. accel_belt_y and accel_belt_z) features. I kept this in mind when considering feature and model selection as described below.
+
+```{r fig.align="center", out.width="150%"}
+corvars <- cor(training[, -53]) #create correlation matrix
+diag(corvars) <- 0
+indices <- which(abs(corvars) > 0.8, arr.ind = T) #determine names of highly correlated variables 
+corvars <- corvars[unique(rownames(indices)), unique(rownames(indices))] #subset matrix
+diag(corvars) <- 1
+corrplot(
+        corvars,
+        method = "square",
+        type = "upper",
+        order = "FPC",
+        tl.cex = 0.7 
+        ) #create a heatmap of highly correlated features
+```
+
+###Model selection:
+#####I considered both linear and non-linear models. I evaluated five model types, lda, tree, boost, svm, and random forest. For the linear discriminant model, I used PCA to reduce the variance inflation due to multicolinearity. Due to the large number of samples, I used 5 fold cross validation rather than .632 bootstraping or leave one out cross validation to reduce computation time while still being able to reduce bias.
+```{r echo = F}
+cluster <- makeCluster(detectCores() - 1); registerDoParallel(cluster) #initiate cluster for parallel processing
+```
+
+```{r warning = F, message = F, cache = T, results = 'hide'}
+fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE) #define parameters for cross validation
+
+set.seed(2358)
+fitlda <- train(classe~., method="lda", preProcess = "pca" , data=training, trControl = fitControl) #train lda with PCA dim reduction
+fittree <- train(classe~., method="rpart", data=training, trControl = fitControl) #train tree classification
+fitgbm <- train(classe~., method="gbm", data=training, trControl = fitControl) #train gbm classification
+fitsvm <- svm(classe~., data=training, type = "C", cross = 5) #train svm classification
+fitrftime <- system.time(fitrf <- train(classe~., method="rf", data=training, trControl = fitControl)) #train random forest classification
+```
+
+###Comparing fits:
+#####I used the cross validation (in sample) accuracy to determine which model type gave the best fit. The random forest model gave the most accurate prediction. To check whether this was due to overfitting, I looked at the out-of-bag (OOB) error and the accuracy of the predictions for the validation data. Both approaches suggest that the out of sample error is <1%. 
+```{r}
+data.frame(model_type = c("lda", "tree","gbm","svm","rf"), 
+                in_sample_accuracy = c(max(fitlda$results[2]),
+                max(fittree$results[2]),
+                max(fitgbm$results[5]),
+                fitsvm$tot.accuracy/100,
+                max(fitrf$results[2]))
+                ) #compares in sample accuracies
+
+fitrf$finalModel #shows OOB error
+confusionMatrix(predict(fitrf, validation), validation$classe)$overall #shows OOSA and CI
+```
+
+###Refitting the model with fewer variables:
+#####Although this was not necessary for this assignment, I refit the model using only the most important variables from the original random forest model in order to reduce computation time. Note that the OOB error and OOS accuracy are similar to the original model but the elapsed time for the second fit is lower showing that this model is faster.
+
+```{r cache = T}
+vars <- varImp(fitrf)$importance #determine feature importance
+vars <- vars%>%mutate(names=rownames(vars))%>%arrange(desc(Overall))%>%filter(Overall>10) #select top 20 or so features
+newformula <- paste0("classe~", vars$names[1]) 
+for (i in 2:length(vars$names)){newformula <- paste(newformula, vars$names[i], sep="+")} #define a new formula
+fitrf2time <- system.time(fitrf2 <- train(as.formula(newformula), method="rf", data=training, trControl = fitControl)) #refit the rf model
+fitrf2$finalModel #shows OOB error
+confusionMatrix(predict(fitrf2, validation), validation$classe)$overall #shows OOSA and CI
+```
+
+```{r echo = F}
+cat("The system times for the fits were:") 
+data.frame(rbind(first_fit = fitrftime[3], second_fit = fitrf2time[3]))
+```
+
+###Predicting the test data:
+#####The accuracy required to correctly predict 20 of 20 independent events is ~99%, <https://github.com/lgreski/datasciencectacontent/blob/master/markdown/pml-requiredModelAccuracy.md>. Thus, the random forest models should be sufficient to complete the assignment. Here is my answer. For comparison, I also show the predictions from the second random forest model using fewer features. Note, that the results are identical.
+```{r}
+data.frame(testing$problem_id, classe.prediction.fitrf = predict(fitrf, testing), classe.prediction.fitrf2 = predict(fitrf2, testing))
+```
+
+```{r echo = F}
+stopCluster(cluster); registerDoSEQ() #return to single thread
+```

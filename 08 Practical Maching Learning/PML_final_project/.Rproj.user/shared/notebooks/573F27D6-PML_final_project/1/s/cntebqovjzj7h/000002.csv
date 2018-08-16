@@ -1,0 +1,39 @@
+"0","require(dplyr)"
+"2","Loading required package: dplyr
+"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","require(caret)"
+"2","Loading required package: caret
+"
+"2","Loading required package: lattice
+"
+"2","Loading required package: ggplot2
+"
+"0","require(corrplot)"
+"2","Loading required package: corrplot
+"
+"2","corrplot 0.84 loaded
+"
+"0","require(parallel)"
+"2","Loading required package: parallel
+"
+"0","require(doParallel)"
+"2","Loading required package: doParallel
+"
+"2","Loading required package: foreach
+"
+"2","Loading required package: iterators
+"

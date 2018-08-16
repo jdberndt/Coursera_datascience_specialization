@@ -1,0 +1,4 @@
+"0","fit1 <- train(classe~., method=""rf"", data=training, trControl = fitControl) #train random forest classification
+"
+"2","Error in eval(expr, p) : object 'training' not found
+"

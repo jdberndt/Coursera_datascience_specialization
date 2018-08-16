@@ -1,0 +1,10 @@
+"0","corrplot("
+"0","        cor(training[, 2:53]),"
+"0","        method = ""square"","
+"0","        type = ""upper"","
+"0","        order = ""hclust"","
+"0","        hclust.method = ""complete"","
+"0","        tl.cex = 0.5"
+"0","        ) #create clustered heatmap of the correlation among variables"
+"2","Error in `[.data.frame`(training, , 2:53) : undefined columns selected
+"

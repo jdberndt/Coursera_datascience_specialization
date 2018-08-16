@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/411370/86df0ea99a3c44c78866315b90fad7d8
+bundleId: https://api.rpubs.com/api/v1/document/411370/86df0ea99a3c44c78866315b90fad7d8
+url: http://rpubs.com/jdberndt/411370
+when: 1533907569.70197

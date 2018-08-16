@@ -1,0 +1,47 @@
+"0","fitControl <- trainControl(method = ""cv"", number = 5, allowParallel = TRUE) #define parameters for cross validation"
+"0","set.seed(2358)"
+"0","fitlda <- train(classe~., method=""lda"", preProcess = ""pca"" , data=training, trControl = fitControl) #train lda with PCA dim reduction"
+"0","fittree <- train(classe~., method=""rpart"", data=training, trControl = fitControl) #train tree classification"
+"0","fitgbm <- train(classe~., method=""gbm"", data=training, trControl = fitControl) #train gbm classification"
+"1","Iter   TrainDeviance   ValidDeviance   StepSize   Improve
+"
+"1","     1        1.6094             nan     0.1000    0.2371
+"
+"1","     2        1.4596             nan     0.1000    0.1604
+"
+"1","     3        1.3586             nan     0.1000    0.1242
+"
+"1","     4        1.2802             nan     0.1000    0.0994
+"
+"1","     5        1.2181             nan     0.1000    0.0915
+"
+"1","     6        1.1603             nan     0.1000    0.0804
+"
+"1","     7        1.1100             nan     0.1000    0.0726
+"
+"1","     8        1.0646             nan     0.1000    0.0693
+"
+"1","     9        1.0220             nan     0.1000    0.0594
+"
+"1","    10        0.9853             nan     0.1000    0.0468
+"
+"1","    20        0.7590             nan     0.1000    0.0318
+"
+"1","    40        0.5381             nan     0.1000    0.0150
+"
+"1","    60        0.4100             nan     0.1000    0.0054
+"
+"1","    80        0.3317             nan     0.1000    0.0039
+"
+"1","   100        0.2728             nan     0.1000    0.0029
+"
+"1","   120        0.2279             nan     0.1000    0.0012
+"
+"1","   140        0.1943             nan     0.1000    0.0018
+"
+"1","   150        0.1797             nan     0.1000    0.0013
+"
+"1","
+"
+"0","fitsvm <- svm(classe~., data=training, type = ""C"", cross = 5) #train svm classification"
+"0","fitrftime <- system.time(fitrf <- train(classe~., method=""rf"", data=training, trControl = fitControl)) #train random forest classification"

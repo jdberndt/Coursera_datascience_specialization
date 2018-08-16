@@ -1,0 +1,4 @@
+"0","if(!file.exists(""pml-training.csv"")){download.file(""https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"", ""pml-training.csv"", method =""curl"")}"
+"0","if(!file.exists(""pml-testing.csv"")){download.file(""https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"", ""pml-training.csv"", method =""curl"")}"
+"0","training <- read.csv(""pml-training.csv"", na.strings = c("""",""NA"", ""#DIV/0!""))"
+"0","testing <- read.csv(""pml-testing.csv"", na.strings = c("""",""NA"", ""#DIV/0!""))"

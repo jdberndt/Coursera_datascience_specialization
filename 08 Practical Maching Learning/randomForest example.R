@@ -1,0 +1,25 @@
+set.seed(13234)
+mdl3 <- train(chd~age+alcohol+obesity+tobacco+typea+ldl, method="glm", family="binomial", data= trainSA)
+
+predtrainSA <- predict(mdl3, trainSA)
+predtestSA <- predict(mdl3, testSA)
+missClass(trainSA$chd, predtrainSA)
+missClass(testSA$chd, predtestSA)
+
+
+library(ElemStatLearn)
+data(vowel.train)
+data(vowel.test)
+set.seed(33833)
+str(vowel.train)
+vowel.train$y <- as.factor(vowel.train$y)
+vowel.test$y <- as.factor(vowel.test$y)
+mdl4 <- randomForest(y~., method="rf", data = vowel.train)
+mdl4
+varImp(mdl4)
+varImpPlot(mdl4)
+varUsed(mdl4)
+predTrain <- data.frame(x=vowel.train$y, y = predict(mdl4, vowel.train))
+predTest <- data.frame(x=vowel.test$y, y = predict(mdl4, vowel.test))
+ggplot(predTrain, aes(x, y))+geom_smooth(method = "lm")+geom_point(aes(color = cut2(vowel.train$x.4, g=5)))
+ggplot(predTest, aes(x, y))+geom_smooth(method = "lm")+geom_point(aes(color = cut2(vowel.test$x.4, g=5)))

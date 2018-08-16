@@ -1,0 +1,12 @@
+"0","if(!file.exists(""pml-testing.csv"")){
+        download.file(""https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"", 
+                      ""pml-training.csv"", method = ""curl"")
+}
+"
+"2","  % Total "
+"2","   % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0"
+"2","100 1511"
+"2","3  100 15113    0     0   295k      0 --:--:-- --:--:-- --:--:--  301k
+"

@@ -1,0 +1,11 @@
+base
+dplyr
+lattice
+ggplot2
+caret
+corrplot
+foreach
+iterators
+doParallel
+e1071
+bindrcpp

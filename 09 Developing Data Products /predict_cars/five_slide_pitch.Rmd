@@ -1,0 +1,31 @@
+---
+title: "Developing data products course project: Predict MPG"
+author: "Jason B."
+date: "8/10/2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+I desgined an app that predicts mpg from the other variables in the mtcars dataset. It allows you to select the model type and covariates to include in the model. It then returns a plot of the predicted and known mpg and includes a linear regression line. It also returns the model statistics. This allows you to quickly change the model and address which variables to include. The app can be found at <https://jdberndt.shinyapps.io/predict_cars/>. The github repo can be found here <https://github.com/jdberndt/datasciencecoursera/tree/master/predict_cars>. See "five_slide_pitch.Rmd" to view source code for these slides.
+
+
+## Screen shot
+```{r, out.width = "800px"}
+knitr::include_graphics("./figs/instructions.png")
+```
+
+## Example Plot Output
+
+```{r, out.width = "800px"}
+knitr::include_graphics("./figs/plot.png")
+```
+
+## Example Model Info Output
+
+```{r, out.width = "800px"}
+knitr::include_graphics("./figs/modelinfo.png")
+```

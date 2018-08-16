@@ -1,0 +1,1 @@
+"0","cluster <- makeCluster(detectCores() - 1); registerDoParallel(cluster) #initiate cluster for parallel processing"

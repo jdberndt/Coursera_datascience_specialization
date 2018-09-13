@@ -1,0 +1,160 @@
+---
+title: "Capstone NLP Milestone Report"
+author: "Jason B."
+date: "9/11/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Summary
+The goal of this project is create a simple predictive text algorithm in R and deploy it using a Shiny app hosted on on a server with a 1Gb capacity. The text that will be used to create the algorithm is derived from a collection of text from Twitter, blogs, and news articles from the United States written in English. This document summarizes the data, my efforts so far in understanding patterns in those data, and my plans for building and deploying the algorithm.  
+
+***  
+
+## Exploration of the data
+
+After an initial exploration of various text analysis packages in R, I chose to rely heavily on "quanteda" because it seems to be the most mature in terms of development, is relatively fast, and has thorough documenation.  <http://docs.quanteda.io/articles/pkgdown/comparison.html> 
+
+```{r libraries, warning=F, message=F}
+library(stringr); library(quanteda); library(readtext) 
+library(doParallel); library(parallel)
+library(ggplot2); library(data.table)
+
+```
+
+## Analyzing the data files
+The starting text for this project is downloaded from <https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip>. The english text is found in the folder "final/en_US". As you can see from this table, the files are quite large. After some initial testing, I found that I was able to load and store the entire dataset on my personal computer. The data.table::fread and readr::read_lines package were faster and more flexible than readtext, but it was more complicated to convert the resulting data types into a data frame compatible with quanteda::corpus. In the end it was more effort and almost as much system time to use fread or readr rather than readtext; so I chose to go with readtext for simplicity and code readability.
+
+```{r file info, cache=T}
+
+#assumes the current working directory is the top level of the zip file
+filepath <- "./final/en_US/" 
+filenames <- dir(filepath)
+numfiles <- length(filenames)
+df <- data.frame(
+        filepath =  rep(filepath, numfiles),
+        filenames,
+        filesize = double(length = numfiles),
+        filelength = integer(length = numfiles)
+        )
+
+#calculates file size and length and populated data frame
+for (i in 1:numfiles){ 
+        FILE <- paste0(df$filepath[i], df$filenames[i])
+        df$filesize[i] <- round(file.size(FILE)/2^20, 1)
+        df$filelength[i] <- as.integer(
+                str_split(
+                        system(
+                        sprintf("wc -l %s", FILE), intern = T), "\\s+")[[1]][2])
+}
+
+```
+
+File name  | File Size (Mb)  | number of lines   
+---------  | --------------  | ---------------   
+`r df$filenames[1]`  | `r df$filesize[1]`  |  `r df$filelength[1]`  
+`r df$filenames[2]`  | `r df$filesize[2]`  |  `r df$filelength[2]`  
+`r df$filenames[3]` |  `r df$filesize[3]`  |  `r df$filelength[3]`  
+
+```{r load data, cache = T}
+cl <- makeCluster((detectCores()-1), type = "FORK")
+registerDoParallel(cl)
+
+en_US.corpus <- corpus(readtext("final/en_US/", docvarsfrom = "filenames", docvarnames = c("Language", "Source"))) #~1min
+
+(summary.en_US.corpus <- summary(en_US.corpus)) #~6.5min
+
+```
+```{r gc, results ='hide'}
+gc()
+```
+```{r create dfm, cache = T, cache.lazy = F}
+
+en_US.dfm <- lapply(1:3, function(n) {
+        dfm(
+        en_US.corpus,
+        tolower = T,
+        remove_punct = T,
+        remove_numbers = T,
+        remove_twitter = T,
+        ngrams = n
+        )
+}) #~23min
+
+
+
+en_US.dfm.trim <- lapply(en_US.dfm, function(x) { 
+         dfm_trim(x, min_termfreq = 5)
+ }) #reduces dfm size from 6Gb to 386Mb, ~1min
+
+
+```
+
+## Top ngram features
+I calculated a document feature matrix for unigrams, bigrams and trigrams. The following table shows the number of unique ngrams for each type.  
+
+  
+Type  | # of ngrams  | # of ngrams occuring 5 or more times
+----  | -----------  | -----------------------------------------
+unigrams  | `r ncol(en_US.dfm[[1]])`  | `r ncol(en_US.dfm.trim[[1]])`
+bigrams  | `r ncol(en_US.dfm[[2]])`  | `r ncol(en_US.dfm.trim[[2]])`
+trigrams  | `r ncol(en_US.dfm[[3]])`  | `r ncol(en_US.dfm.trim[[3]])`
+  
+I then plotted histograms of the top 20 ngrams for each type broken down by the source text. As expected, the most frequent words are stopwords. Apparently twitter users are more thankful than bloggers or news journalists.  
+
+```{r find top ngrams, cache = T} 
+rm(en_US.dfm)
+
+top_features <- lapply(en_US.dfm.trim, function(x) topfeatures(x, 20))
+ngrams_dt <- lapply(1:3, function(n) data.table(textstat_frequency(en_US.dfm.trim[[n]], groups = "Source")))#~1min
+names(ngrams_dt) <- c("Unigrams", "Bigrams", "Trigrams")
+
+```
+
+```{r make plots}
+makeplots <- function(x){         
+                dt <- ngrams_dt[[x]][feature %in% names(top_features[[x]]), ]
+                
+                ggplot(dt, aes(x=feature, frequency/100000, fill = group))+
+                        geom_bar(stat="identity")+
+                        coord_flip()+
+                        facet_grid(~group)+
+                        theme(strip.text.x = element_blank(), 
+                              legend.position = "top", 
+                              legend.direction = "horizontal", 
+                              legend.title = element_blank(),
+                              legend.text = element_text(margin = margin(r = 5, unit = "char"))) 
+                      
+}
+
+
+```
+  
+##Top Unigrams  
+```{r plot1}
+makeplots[1]
+```
+  
+##Top Bigrams
+```{r plot2}
+makeplots[2]
+```
+  
+##Top Trigrams
+```{r plot3}
+makeplots[3]
+```
+  
+## Moving forward with the modeling.  
+The size of the document feature matrix for unigrams, bigrams and trigrams was almost 6Gb. However, removing infrequent terms reduced the size by 1.5 orders of magnitude. Given the limitations of the shiny.io server (1Gb), I will have to figure out a way to use the reduced size matrix. Overall building the model and shiny app seems relatively straightforward; however, I need to consider the various methods of smoothing (e.g. Stupid back off vs. Katz back off) and how to implement them.  
+
+
+***  
+
+##Appendix
+
+```{r, ref.label=knitr::all_labels()[-1],echo=TRUE,eval=FALSE}
+```

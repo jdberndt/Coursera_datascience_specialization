@@ -1,0 +1,10 @@
+base
+stringr
+quanteda
+data.table
+readtext
+foreach
+iterators
+doParallel
+ggplot2
+dplyr

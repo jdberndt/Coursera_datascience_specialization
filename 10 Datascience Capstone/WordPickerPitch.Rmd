@@ -1,0 +1,58 @@
+---
+title: "WordPicker Pro Edition"
+author: "Jason B."
+date: "9/26/2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## The world is in grammatical chaos
+
+- Do you have trouble finding just the right words to type?
+- Does clicking and tapping irritate your arthritis?
+- Do you prefer to send embarassing texts due to auto-completion errors?
+
+## If so, then WordPicker Pro is the answer for you!
+
+- It's easy to use.
+- It gets the right word every time.*
+- There is no annual fee.
+
+\*your results may vary
+
+## WordPicker Pro {.smaller}
+We developed WordPicker Pro as the **ultimate** solution to the world's autocomplete needs. Our analysis suggests that the total number of users will exceed Earth's population within three years. So, get in on the ground floor, invest now.  
+
+```{r plot, out.width= "75%", fig.align='center'}
+library(ggplot2)
+y <- (1:10000)^2.5
+st <- as.Date("2018-9-26")
+en <- as.Date("2021-9-26")
+ll <- seq(st, en, along.with = y)
+qplot(ll,y)+geom_line()+geom_abline(intercept=7.7e9, slope=0.0007,linetype="dashed", color = "red", size =2)+scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y") +theme(axis.text.x = element_text(angle = 60, hjust = 1))+labs(x = "", y = "number of people")+geom_text(aes(x=as.Date("2019-2-6"), y = 8.5e9), label = "population", color = "red", size = 6)+geom_text(aes(x=as.Date("2018-12-26"), y = 0.5e9), label = "users", size = 6)
+```
+
+## Summary {.smaller}
+Find the prototype of our amazing app by following the link below:  
+https://jdberndt.shinyapps.io/WordPicker/  
+
+Some limitations may apply:  
+  
+- R is not the best language for iOS or Android application development.  
+- The text used as the basis for the predictions is old and somewhat irrelevant.  
+- We were not able to implement tab-completion; so you'll have to type the word you want anyway.  
+- The algorithm is overly simplistic due to limitations of the shinyapps.io server.  
+- Our competitors consist of large teams of developers with years of experience.  
+- Usage growth after 2021 is entirely dependent on contact with extraterrestrial beings or a massive population boom.  
+   
+##  Have a great life!  {.smaller}
+
+Thanks for taking time to review my assignment and provide feedback. 
+  
+![](ET.png)
+  
+P.S. This slide doesn't count toward the five slide limit.  
+P.P.S. I know this is ioslides, not R presentation. Please forgive me. 

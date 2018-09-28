@@ -1,0 +1,12 @@
+name: WordPicker
+title: WordPicker
+username:
+account: jdberndt
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 470320
+bundleId: 1608069
+url: https://jdberndt.shinyapps.io/WordPicker/
+when: 1538006258.14772
+asMultiple: FALSE
+asStatic: FALSE

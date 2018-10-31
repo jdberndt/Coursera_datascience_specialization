@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1533312518822.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1641751645",
+    "id" : "8BBD6F9F",
+    "lastKnownWriteTime" : 1533320313,
+    "last_content_update" : 1533320313985,
+    "path" : "~/datasciencecoursera/Regression/Regression_course_project.Rmd",
+    "project_path" : "Regression/Regression_course_project.Rmd",
+    "properties" : {
+        "cursorPosition" : "53,2",
+        "scrollLine" : "38",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

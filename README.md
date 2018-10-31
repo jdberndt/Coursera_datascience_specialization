@@ -13,7 +13,7 @@ Shiny dashboards:
 [Wordpicker](https://jdberndt.shinyapps.io/WordPicker/)  
 
 Machine learning and reproducible research:  
-[Activity prediction](https://jdberndt.github.io/Coursera_datascience_specialization/08%20Practical%20Maching%20Learning/PML_final_project/PML_final_project.html)  
+[Activity prediction](https://jdberndt.github.io/Coursera_datascience_specialization/08%20Practical%20Maching%20Learning/PML_final_project/PML_project.html)  
 [Storm data EDA](https://jdberndt.github.io/Coursera_datascience_specialization/05%20Reproducible%20Research/Project2/RR_project2.html)  
   
 Miscellaneous Rpubs:  

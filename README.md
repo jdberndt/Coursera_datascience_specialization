@@ -1,6 +1,6 @@
 ## This repository contains code related to the completion of the John's Hopkins University datascience specialization offered through Coursera. Each folder corresponds to one of the ten courses.   
-I 
-More information on the courses can be found at:  the 
+  
+More information on the courses can be found at:  
 [Coursera](https://www.coursera.org/specializations/jhu-data-science)  
 [Bcaffo_github](https://github.com/bcaffo/courses)  
 

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1533274316688.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2981111434",
+    "id" : "248F9ABF",
+    "lastKnownWriteTime" : 1533312310,
+    "last_content_update" : 1533312310,
+    "path" : "~/datasciencecoursera/Regression/course project rough draft.R",
+    "project_path" : "Regression/course project rough draft.R",
+    "properties" : {
+        "cursorPosition" : "36,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

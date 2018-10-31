@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1533216333175.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "681602020",
+    "id" : "3C4686E4",
+    "lastKnownWriteTime" : 1533216333,
+    "last_content_update" : 1533216333,
+    "path" : "~/datasciencecoursera/vifSims.R",
+    "project_path" : "vifSims.R",
+    "properties" : {
+        "cursorPosition" : "31,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

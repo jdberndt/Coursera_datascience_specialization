@@ -1,0 +1,70 @@
+---
+title: "Regression_course_project"
+output:
+  pdf_document: default
+  html_document: default
+---
+##Summary:  
+#### The objective of this project is to use skills learned from the Coursera regression course to analyze the mtcars dataset. I have used single and multivariate linear regression to address whether there the difference between an automatic and manual transmission affects the fuel consumption (measured in miles per gallon) and if so, by how much. My analysis shows that considering only transmission type (am) suggests that manual transmissions increase fuel economy by 7 mpg. However, when also considering other covariables, including vehicle weight, the number engine cylinders and the engine displacement, transmission type is not a significant predictor of fuel economy.
+
+## Data exploration:  
+####After loading the data and viewing the content of the variables, I converted the discrete variables to factors.
+```{r}
+#load data
+library(datasets)
+data(mtcars)
+head(mtcars)
+#copy data and add labels to am factor variable
+cars <- within(mtcars, {
+        vs <- factor(vs, labels = c("V", "S"))
+        am <- factor(am, labels = c("automatic", "manual"))
+        cyl  <- ordered(cyl)
+        gear <- ordered(gear)
+        carb <- ordered(carb)
+})
+```
+
+####I then plotted the fuel economy (mpg) as a function of transmission type (am) (plot 1). The mean of manual transmissions is about 7 mpg larger than that for automatic transmissions. 
+```{r}
+#what are the means
+aggregate(mpg~am, cars, mean)
+```
+
+##Inferential analysis:  
+####In order to determine if this is a meaningful difference, I performed a linear regression. The slope coefficient (ammanual) is equal to the difference in the means shown above. The means that switching from an automatic to manual transmission increases fuel economy by about 7.2 mpg.  Since the p-value for the slope coefficient is much less than alpha = 0.05, this suggests that this difference does not occur by chance. However, the R^2 value shows that transmission type only accounts for about 36% percent of the variability in fuel economy. Indeed, a plot of the residuals (plot 2) show quite a bit of scatter. The range was -10 to 10 mpg.
+```{r}
+#what is the relationship
+fit <- lm(mpg~am, cars)
+summary(fit)
+```
+
+####So, I was curious if other variables might also influence fuel economy. I performed an analysis of variance of the multivariate linear regression using all variables as regressors to predict mpg. Vehicle weight (wt), the number engine cylinders (cyl) and the engine displacement (disp) all showed significant main effects suggesting that they may also have influence on fuel economy.
+```{r}
+#what other variable may be correlated
+anova(lm(mpg~., cars))
+```
+
+####Therefore, I added cyl, disp, and wt to my model. The R^2 value shows that the new model explains ~83% of the variability in mpg. Looking at the 95% confidence interval gives me confidence that the calculated coefficients accurately represent the population. Moreover, a plot of the residuals (plot 3) shows that residuals are normally distributed around the predicted values and there are unlikely to be any influential outliers.
+```{r}
+#what if we model the data using additional covariates
+newfit <- lm(mpg~am+cyl+disp+wt, cars)
+summary(newfit)
+confint(newfit)
+```
+\newpage  
+##Appendix:  
+####Plot 1: Plot of fuel economy (mpg) as a function of transmission type (am).
+```{r}
+boxplot(mpg~am, cars)
+```
+  
+####Plot 2: Residual plot of single variable linear regression (mpg~am). 
+```{r}
+plot(1:nrow(cars), fit$residuals)
+```
+  
+####Plot 3: Residual diagnositics of multivariate linear regression.
+```{r}
+par (mfrow = c(2,2))
+plot(newfit)
+```

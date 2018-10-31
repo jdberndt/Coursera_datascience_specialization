@@ -17,3 +17,4 @@ Machine learning and reproducible research:
 Miscellaneous Rpubs:  
 [rpubs.com/jdberndt](http://rpubs.com/jdberndt)  
 
+

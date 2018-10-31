@@ -15,5 +15,5 @@ Machine learning and reproducible research:
 [Storm data EDA](https://jdberndt.github.io/Coursera_datascience_specialization/05%20Reproducible%20Research/Project2/RR_project2.html)  
   
 Miscellaneous Rpubs:  
-(http://rpubs.com/jdberndt)  
+[rpubs.com/jdberndt](http://rpubs.com/jdberndt)  
 
